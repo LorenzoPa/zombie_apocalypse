@@ -80,4 +80,4 @@ The goal is simple: **survive as many days as possible.**
 ## 🧑‍💻 Author
 
 Created by **Lorenzo Paniccia**  
-✨ _“Survive. Adapt. Shine.”_
+
