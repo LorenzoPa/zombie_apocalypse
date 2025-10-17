@@ -13,7 +13,7 @@ class Shelter(models.Model):
     alive = models.BooleanField(default=True)
     
     def next_day(self):
-        # Se il rifugio è già caduto, non fare nulla 
+        #se siamo in gaem over, non posso continuare
         if not self.alive:
             return {
                 "day": self.day,
@@ -51,17 +51,20 @@ class Shelter(models.Model):
         else:
             message = "A calm night. Everyone is resting."
 
-        # Effetto fame
+        #se cibo e' zero, un survivor muore
         if self.food <= 0:
             self.survivors -= 1
             message += " Food too low. -1 survivor."
 
-        # Se tutti morti
+        #game over
         if self.survivors <= 0:
             self.alive = False
             message += " The shelter has fallen!"
 
-        # 🔥 Salvataggio sicuro
+        self.food = max(0, self.food)
+        self.defense = max(0, self.defense)
+        self.survivors = max(0, self.survivors)
+        #salvataggio
         self.save()
 
         return {
@@ -115,7 +118,11 @@ class Shelter(models.Model):
         if self.survivors <= 0:
             self.alive = False
             message += " The shelter has fallen!"
-
+        #Evito che i valori vadano negativi
+        self.food = max(0, self.food)
+        self.defense = max(0, self.defense)
+        self.survivors = max(0, self.survivors)
+        #salvataggio
         self.save()
         return {"event": message, "status": self.status()}
     
