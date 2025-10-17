@@ -1,0 +1,166 @@
+{
+  "info": {
+    "name": "Zombie Apocalypse API",
+    "_postman_id": "zombie-apocalypse-collection",
+    "description": "Collection for testing Django REST API (accounts + game/shelter + leaderboard)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"loren\",\n    \"email\": \"loren@example.com\",\n    \"password\": \"12345\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/accounts/register/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "accounts", "register", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "User - Login (JWT)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"loren\",\n    \"password\": \"12345\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/accounts/login/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "accounts", "login", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Token - Refresh",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"refresh\": \"<PASTE_REFRESH_TOKEN_HERE>\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/accounts/token/refresh/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "accounts", "token", "refresh", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Game - Shelter Status",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/game/shelter/status/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "game", "shelter", "status", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Game - Perform Action",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"action\": \"search_food\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/game/shelter/action/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "game", "shelter", "action", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Game - Next Day",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/game/shelter/next_day/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "game", "shelter", "next_day", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Game - Restart Shelter",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/game/shelter/restart/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "game", "shelter", "restart", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Game - Leaderboard (Top 3 Survivors)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/game/shelter/leaderboard/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "game", "shelter", "leaderboard", ""]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    { "key": "access_token", "value": "" }
+  ]
+}

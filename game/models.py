@@ -10,8 +10,13 @@ class Shelter(models.Model):
     survivors = models.IntegerField(default=3)
     defense = models.IntegerField(default=5)
     day = models.IntegerField(default=1)
+    best_day = models.IntegerField(default=1, db_index=True)
     alive = models.BooleanField(default=True)
     
+    def _update_best_day(self):
+        if self.day > self.best_day:
+            self.best_day = self.day
+
     def next_day(self):
         #se siamo in gaem over, non posso continuare
         if not self.alive:
@@ -22,11 +27,16 @@ class Shelter(models.Model):
             }
 
         self.day += 1
-        self.food -= 2
+        #il cibo consumato dipende dai sopravvissuti. Ogni 3 sopravvissuti consumo 1 di cibo.
+        food_consumed = (self.survivors + 2) // 3
+        self.food -= food_consumed
         message = ""
 
-        events = ["attack", "find_food", "disease", "quiet"]
-        event = random.choice(events)
+        event = random.choices(
+            ["attack", "find_food", "disease", "quiet"],
+            weights=[0.3, 0.3, 0.2, 0.2],
+            k=1
+        )[0]
 
         if event == "attack":
             damage = random.randint(1, 4)
@@ -39,9 +49,9 @@ class Shelter(models.Model):
                 message = f"Zombie attack! Defense -{damage}"
 
         elif event == "find_food":
-            found = random.randint(2, 6)
+            found = random.randint(1, 3)
             self.food += found
-            message = f"You found {found} units of food."
+            message = f"A cargo arrived at your shelter. They gave you {found} units of food."
 
         elif event == "disease":
             lost = random.randint(1, 2)
@@ -55,15 +65,19 @@ class Shelter(models.Model):
         if self.food <= 0:
             self.survivors -= 1
             message += " Food too low. -1 survivor."
+        
+        self.food = max(0, self.food)
+        self.defense = max(0, self.defense)
+        self.survivors = max(0, self.survivors)
 
         #game over
         if self.survivors <= 0:
             self.alive = False
-            message += " The shelter has fallen!"
+            message += " No one survived. The shelter has fallen!"
 
-        self.food = max(0, self.food)
-        self.defense = max(0, self.defense)
-        self.survivors = max(0, self.survivors)
+        #aggiorna record personale
+        self._update_best_day()
+
         #salvataggio
         self.save()
 
@@ -82,12 +96,13 @@ class Shelter(models.Model):
 
         message = ""
         if action == "search_food":
-            found = random.randint(1, 6)
+            found = random.randint(1, 10)
             self.food += found
+            risk = random.randint(0, 1)
             message = f"You searched for food and found {found} units!"
 
         elif action == "search_weapons":
-            found = random.randint(0, 2)
+            found = random.randint(1, 2)
             self.defense += found
             risk = random.randint(0, 1)
             if risk == 1:
@@ -105,23 +120,25 @@ class Shelter(models.Model):
             else:
                 loss = random.randint(1, 2)
                 self.survivors -= loss
-                message = f"You couldn't find anyone, and lost {loss} people in the process."
+                message = f"You found some hostile people, you lost {loss} people in the fight."
 
         elif action == "rest":
-            recover = random.randint(1, 3)
-            self.defense += recover
-            message = f"You rested for a day. Defense +{recover}."
+            
+            message = f"You rested for a day."
 
         else:
             message = "Invalid action."
+            
+        
+        self.food = max(0, self.food)
+        self.defense = max(0, self.defense)
+        self.survivors = max(0, self.survivors)
 
         if self.survivors <= 0:
             self.alive = False
             message += " The shelter has fallen!"
-        #Evito che i valori vadano negativi
-        self.food = max(0, self.food)
-        self.defense = max(0, self.defense)
-        self.survivors = max(0, self.survivors)
+        
+        
         #salvataggio
         self.save()
         return {"event": message, "status": self.status()}
@@ -129,6 +146,7 @@ class Shelter(models.Model):
     def status(self):
         return {
             "day": self.day,
+            "best_day": self.best_day,
             "food": self.food,
             "defense": self.defense,
             "survivors": self.survivors,
